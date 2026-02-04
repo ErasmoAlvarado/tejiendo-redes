@@ -1,0 +1,16 @@
+import { mysqlTable, varchar, text, int } from 'drizzle-orm/mysql-core';
+
+/**
+ * Tabla: medicamentos
+ * Inventario de medicamentos
+ */
+export const medicamentos = mysqlTable('medicamentos', {
+    codigoMedicamento: varchar('codigo_medicamento', { length: 10 }).primaryKey().notNull(), // MED-001...
+    nombreMedicamento: varchar('nombre_medicamento', { length: 100 }).notNull(),
+    presentacion: varchar('presentacion', { length: 100 }).notNull(),
+    descripcion: text('descripcion').notNull(),
+    existencia: int('existencia').notNull().default(0),
+});
+
+export type Medicamento = typeof medicamentos.$inferSelect;
+export type NewMedicamento = typeof medicamentos.$inferInsert;

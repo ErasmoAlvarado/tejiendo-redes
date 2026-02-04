@@ -23,6 +23,8 @@ import {
     mockConsultas,
     mockMedicamentos,
     mockMedicamentosPacientes,
+    mockEnfermedades,
+    mockConsultaEnfermedades,
     getAbordajeConRelaciones,
 } from '@/lib/mock-data';
 import { calcularEdad } from '@/types/models';
@@ -33,14 +35,17 @@ export default function ReportesPage() {
     const [fechaFin, setFechaFin] = React.useState('2025-01-31');
     const [comunidadFiltro, setComunidadFiltro] = React.useState('todas');
 
-    // Reporte de Abordajes
+    // Reporte de Abordajes - Preparado para conexión con base de datos
     const reporteAbordajes = mockAbordajes.map((abordaje) => {
         const data = getAbordajeConRelaciones(abordaje.codigo_abordaje);
         return {
-            ...abordaje,
-            comunidades_count: data?.comunidades?.length || 0,
-            consultas_count: data?.total_consultas || 0,
-            pacientes_unicos: data?.pacientes_unicos || 0,
+            codigo_abordaje: abordaje.codigo_abordaje,
+            fecha_abordaje: abordaje.fecha_abordaje,
+            descripcion: abordaje.descripcion,
+            comunidades: data?.comunidades?.length || 0,
+            pacientes_atendidos: data?.pacientes_unicos || 0,
+            hora_inicio: abordaje.hora_inicio,
+            hora_fin: abordaje.hora_fin,
         };
     });
 
@@ -57,9 +62,11 @@ export default function ReportesPage() {
             pacientesEnComunidad.some((p) => p.cedula_paciente === c.cedula_paciente)
         );
 
+        const pacientesTratados = new Set(consultasEnComunidad.map((c) => c.cedula_paciente)).size;
+
         return {
             ...comunidad,
-            pacientes_registrados: pacientesEnComunidad.length,
+            pacientes_tratados: pacientesTratados,
             abordajes_realizados: abordajesEnComunidad.length,
             total_consultas: consultasEnComunidad.length,
         };
@@ -69,7 +76,14 @@ export default function ReportesPage() {
     const reportePacientes = mockPacientes.map((paciente) => {
         const consultasPaciente = mockConsultas.filter(
             (c) => c.cedula_paciente === paciente.cedula_paciente
-        );
+        ).map(c => {
+            const abordaje = mockAbordajes.find(a => a.codigo_abordaje === c.codigo_abordaje);
+            return {
+                ...c,
+                fecha_consulta: abordaje?.fecha_abordaje || '',
+            };
+        });
+
         const ultimaConsulta =
             consultasPaciente.length > 0
                 ? consultasPaciente.sort(
@@ -89,14 +103,16 @@ export default function ReportesPage() {
     // Reporte de Morbilidad
     const reporteMorbilidad: Record<string, number> = {};
     mockConsultas.forEach((consulta) => {
-        const tipo = consulta.tipo_morbilidad || 'Sin clasificar';
+        const relacionEnfermedad = mockConsultaEnfermedades.find(ce => ce.codigo_consulta === consulta.codigo_consulta);
+        const enfermedad = mockEnfermedades.find(e => e.codigo_enfermedad === relacionEnfermedad?.codigo_enfermedad);
+        const tipo = enfermedad?.tipo_patologia || 'Sin clasificar';
         reporteMorbilidad[tipo] = (reporteMorbilidad[tipo] || 0) + 1;
     });
 
     const dataMorbilidad = Object.entries(reporteMorbilidad).map(([tipo, cantidad]) => ({
         tipo_morbilidad: tipo,
         cantidad,
-        porcentaje: ((cantidad / mockConsultas.length) * 100).toFixed(1),
+        porcentaje: ((cantidad / (mockConsultas.length || 1)) * 100).toFixed(1),
     }));
 
     // Reporte de Medicamentos
@@ -210,11 +226,11 @@ export default function ReportesPage() {
                                     columns={[
                                         { key: 'codigo_abordaje', label: 'Código', sortable: true },
                                         { key: 'fecha_abordaje', label: 'Fecha', sortable: true },
-                                        { key: 'descripcion_abordaje', label: 'Descripción' },
-                                        { key: 'comunidades_count', label: 'Comunidades', sortable: true },
-                                        { key: 'consultas_count', label: 'Consultas', sortable: true },
-                                        { key: 'pacientes_unicos', label: 'Pacientes', sortable: true },
-                                        { key: 'estado', label: 'Estado' },
+                                        { key: 'descripcion', label: 'Descripción' },
+                                        { key: 'comunidades', label: 'Comunidades', sortable: true },
+                                        { key: 'pacientes_atendidos', label: 'Pacientes Atendidos', sortable: true },
+                                        { key: 'hora_inicio', label: 'Hora Inicio', sortable: true },
+                                        { key: 'hora_fin', label: 'Hora Fin', sortable: true },
                                     ]}
                                     searchPlaceholder="Buscar abordaje..."
                                 />
@@ -251,19 +267,21 @@ export default function ReportesPage() {
                                     data={reporteComunidades}
                                     columns={[
                                         { key: 'codigo_comunidad', label: 'Código', sortable: true },
-                                        { key: 'nombre_comunidad', label: 'Nombre', sortable: true },
-                                        { key: 'habitantes', label: 'Habitantes', sortable: true },
+                                        { key: 'nombre_comunidad', label: 'Nombre Comunidad', sortable: true },
+                                        { key: 'estado', label: 'Estado', sortable: true },
+                                        { key: 'municipio', label: 'Municipio', sortable: true },
+                                        { key: 'cantidad_habitantes', label: 'Habitantes', sortable: true },
                                         {
-                                            key: 'pacientes_registrados',
-                                            label: 'Pacientes',
+                                            key: 'pacientes_tratados',
+                                            label: 'Pacientes Tratados',
                                             sortable: true,
                                         },
                                         {
                                             key: 'abordajes_realizados',
-                                            label: 'Abordajes',
+                                            label: 'Abordajes Realizados',
                                             sortable: true,
                                         },
-                                        { key: 'total_consultas', label: 'Consultas', sortable: true },
+                                        { key: 'total_consultas', label: 'Consultas Realizadas', sortable: true },
                                     ]}
                                     searchPlaceholder="Buscar comunidad..."
                                 />

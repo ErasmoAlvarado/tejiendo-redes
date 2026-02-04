@@ -20,6 +20,7 @@ export default function ResponsablesPage() {
             render: (r) => `${r.nombre_responsable} ${r.apellido_responsable}`,
             sortable: true,
         },
+        { key: 'cargo', label: 'Cargo', sortable: true },
         { key: 'telefono_responsable', label: 'Teléfono' },
         { key: 'correo_responsable', label: 'Correo' },
         {

@@ -4,21 +4,25 @@ export interface Responsable {
   cedula_responsable: string;
   nombre_responsable: string;
   apellido_responsable: string;
-  telefono_responsable?: string;
-  correo_responsable?: string;
-  direccion_responsable?: string;
+  direccion_responsable: string;
+  telefono_responsable: string;
+  correo_responsable: string;
+  cargo: string;
 }
 
 export interface Tejedor {
   cedula_tejedor: string;
   nombre_tejedor: string;
   apellido_tejedor: string;
-  telefono_tejedor?: string;
-  correo_tejedor?: string;
-  direccion_tejedor?: string;
-  // Campos opcionales del PATCH SQL para autenticación
+  fecha_nacimiento: string;
+  direccion_tejedor: string;
+  telefono_tejedor: string;
+  correo_tejedor: string;
+  profesion_tejedor: string;
+  fecha_ingreso: string;
+  tipo_voluntario: string;
+  // Campos extra para la app (autenticación/estado)
   usuario?: string;
-  password_hash?: string;
   rol?: 'ADMIN' | 'REGISTRO' | 'MEDICO' | 'FARMACIA' | 'LECTOR';
   activo?: boolean;
 }
@@ -26,41 +30,58 @@ export interface Tejedor {
 export interface Especialidad {
   codigo_especialidad: string;
   nombre_especialidad: string;
-  descripcion_especialidad?: string;
+  descripcion: string;
+}
+
+export interface Enfermedad {
+  codigo_enfermedad: string;
+  nombre_enfermedad: string;
+  tipo_patologia: string;
+  descripcion?: string;
 }
 
 export interface Comunidad {
   codigo_comunidad: string;
   nombre_comunidad: string;
-  estado?: string;
-  municipio?: string;
-  parroquia?: string;
-  habitantes?: number;
+  tipo_comunidad: string; // Ej. Urbana, Rural, Indígena, Base de Misiones
+  estado: string;
+  municipio: string;
+  direccion: string;
+  ubicacion_fisica: string;
   cedula_responsable: string;
+  cantidad_habitantes: number;
+  cantidad_familias: number;
+  telefono_comunidad: string;
   // Relaciones
   responsable?: Responsable;
 }
 
 export interface Organismo {
   codigo_organismo: string;
-  nombre_organismo: string;
-  tipo_organismo?: string;
-  telefono_organismo?: string;
   cedula_tejedor: string;
+  nombre_organismo: string;
+  pais_organismo: string;
+  estado_organismo: string;
+  municipio_organismo: string;
+  direccion_organismo: string;
+  ubicacion_fisica: string;
+  correo_organismo: string;
+  telefono_organismo: string;
   // Relaciones
   tejedor?: Tejedor;
 }
 
 export interface Paciente {
   cedula_paciente: string;
+  codigo_comunidad: string;
   nombre_paciente: string;
   apellido_paciente: string;
+  sexo: 'M' | 'F';
   fecha_nacimiento: string;
-  telefono_paciente?: string;
-  direccion_paciente?: string;
-  codigo_comunidad: string;
-  // Campo opcional del PATCH SQL
-  sexo?: 'M' | 'F' | 'Otro';
+  direccion_paciente: string;
+  telefono_paciente: string;
+  correo_paciente: string;
+  nota?: string;
   // Relaciones
   comunidad?: Comunidad;
 }
@@ -68,11 +89,14 @@ export interface Paciente {
 export interface Antecedente {
   codigo_antecedente: string;
   cedula_paciente: string;
-  enfermedades?: string;
-  alergias?: string;
-  cirugias?: string;
-  medicamentos_habituales?: string;
-  observaciones?: string;
+  peso: number;
+  talla: number;
+  temperatura: number;
+  FC: string;
+  TA: string;
+  enfermedades_previas: string;
+  alergias: string;
+  enfermedades_familia: string;
   // Relaciones
   paciente?: Paciente;
 }
@@ -80,25 +104,25 @@ export interface Antecedente {
 export interface Medicamento {
   codigo_medicamento: string;
   nombre_medicamento: string;
-  descripcion_medicamento?: string;
-  existencia: number;
-  unidad_medida?: string;
-  lote?: string;
-  fecha_vencimiento?: string;
+  presentacion: string;
+  descripcion: string;
+  existence: number;
 }
 
 export interface Abordaje {
   codigo_abordaje: string;
   fecha_abordaje: string;
   hora_inicio: string;
-  hora_fin?: string;
-  descripcion_abordaje?: string;
+  hora_fin: string;
+  descripcion: string;
+  // Campo extra para UI
   estado?: 'Planificado' | 'En Curso' | 'Finalizado';
 }
 
 export interface AbordajeComunidad {
   codigo_abordaje: string;
   codigo_comunidad: string;
+  observaciones?: string;
   // Relaciones
   abordaje?: Abordaje;
   comunidad?: Comunidad;
@@ -107,7 +131,8 @@ export interface AbordajeComunidad {
 export interface Medico {
   cedula_tejedor: string;
   codigo_especialidad: string;
-  licencia_medica?: string;
+  matricula_colegio_medico: string;
+  matricula_sanidad: string;
   // Relaciones
   tejedor?: Tejedor;
   especialidad?: Especialidad;
@@ -117,28 +142,32 @@ export interface Consulta {
   codigo_consulta: string;
   codigo_abordaje: string;
   cedula_paciente: string;
-  cedula_tejedor: string;
-  fecha_consulta: string;
-  motivo_consulta?: string;
-  diagnostico?: string;
-  tratamiento?: string;
-  recomendaciones?: string;
-  // Campos opcionales del PATCH SQL para morbilidad
-  diagnostico_cod?: string;
-  tipo_morbilidad?: string;
+  cedula_medico: string;
+  motivo_consulta: string;
+  diagnostico_texto: string;
+  recomendaciones: string;
+  tratamiento: string;
   // Relaciones
   abordaje?: Abordaje;
   paciente?: Paciente;
   medico?: Medico;
 }
 
+export interface ConsultaEnfermedad {
+  codigo_consulta: string;
+  codigo_enfermedad: string;
+  observacion_especifica?: string;
+  // Relaciones
+  consulta?: Consulta;
+  enfermedad?: Enfermedad;
+}
+
 export interface MedicamentoPaciente {
   codigo_medicamento: string;
   cedula_paciente: string;
   fecha_entrega: string;
-  cedula_tejedor: string;
   cantidad_entregada: number;
-  indicaciones?: string;
+  cedula_tejedor: string;
   // Relaciones
   medicamento?: Medicamento;
   paciente?: Paciente;
@@ -148,7 +177,7 @@ export interface MedicamentoPaciente {
 export interface TejedorAbordaje {
   codigo_abordaje: string;
   cedula_tejedor: string;
-  rol_abordaje?: string;
+  rol_en_abordaje?: string;
   // Relaciones
   abordaje?: Abordaje;
   tejedor?: Tejedor;

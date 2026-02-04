@@ -15,7 +15,7 @@ export default function EspecialidadesPage() {
     const columns: Column<Especialidad>[] = [
         { key: 'codigo_especialidad', label: 'Código', sortable: true },
         { key: 'nombre_especialidad', label: 'Nombre', sortable: true },
-        { key: 'descripcion_especialidad', label: 'Descripción' },
+        { key: 'descripcion', label: 'Descripción' },
         {
             key: 'acciones',
             label: 'Acciones',

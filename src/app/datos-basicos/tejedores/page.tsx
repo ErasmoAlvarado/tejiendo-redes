@@ -34,9 +34,13 @@ export default function TejedoresPage() {
         cedula_tejedor: '',
         nombre_tejedor: '',
         apellido_tejedor: '',
+        fecha_nacimiento: '',
+        direccion_tejedor: '',
         telefono_tejedor: '',
         correo_tejedor: '',
-        direccion_tejedor: '',
+        profesion_tejedor: '',
+        fecha_ingreso: '',
+        tipo_voluntario: '',
         usuario: '',
         rol: 'REGISTRO' as "REGISTRO" | "ADMIN" | "MEDICO" | "FARMACIA" | "LECTOR",
         activo: true,
@@ -48,9 +52,13 @@ export default function TejedoresPage() {
             cedula_tejedor: '',
             nombre_tejedor: '',
             apellido_tejedor: '',
+            fecha_nacimiento: '',
+            direccion_tejedor: '',
             telefono_tejedor: '',
             correo_tejedor: '',
-            direccion_tejedor: '',
+            profesion_tejedor: '',
+            fecha_ingreso: '',
+            tipo_voluntario: '',
             usuario: '',
             rol: 'REGISTRO',
             activo: true,
@@ -64,11 +72,15 @@ export default function TejedoresPage() {
             cedula_tejedor: tejedor.cedula_tejedor,
             nombre_tejedor: tejedor.nombre_tejedor,
             apellido_tejedor: tejedor.apellido_tejedor,
-            telefono_tejedor: tejedor.telefono_tejedor || '',
-            correo_tejedor: tejedor.correo_tejedor || '',
-            direccion_tejedor: tejedor.direccion_tejedor || '',
+            fecha_nacimiento: tejedor.fecha_nacimiento,
+            direccion_tejedor: tejedor.direccion_tejedor,
+            telefono_tejedor: tejedor.telefono_tejedor,
+            correo_tejedor: tejedor.correo_tejedor,
+            profesion_tejedor: tejedor.profesion_tejedor,
+            fecha_ingreso: tejedor.fecha_ingreso,
+            tipo_voluntario: tejedor.tipo_voluntario,
             usuario: tejedor.usuario || '',
-            rol: (tejedor.rol || 'REGISTRO') as "REGISTRO" | "ADMIN" | "MEDICO" | "FARMACIA" | "LECTOR",
+            rol: (tejedor.rol || 'REGISTRO') as any,
             activo: tejedor.activo ?? true,
         });
         setIsModalOpen(true);
@@ -86,17 +98,17 @@ export default function TejedoresPage() {
 
         if (editingTejedor) {
             // Editar
-            setTejedores(prev =>
+            setTejedores((prev: Tejedor[]) =>
                 prev.map(t =>
                     t.cedula_tejedor === editingTejedor.cedula_tejedor
-                        ? { ...formData }
+                        ? { ...t, ...formData }
                         : t
                 )
             );
             toast.success('Tejedor actualizado correctamente');
         } else {
             // Crear
-            setTejedores(prev => [...prev, formData]);
+            setTejedores((prev: Tejedor[]) => [...prev, formData as Tejedor]);
             toast.success('Tejedor creado correctamente');
         }
 
@@ -116,16 +128,26 @@ export default function TejedoresPage() {
             sortable: true,
         },
         {
+            key: 'profesion_tejedor',
+            label: 'Profesión',
+            sortable: true,
+        },
+        {
+            key: 'tipo_voluntario',
+            label: 'Tipo',
+            render: (tejedor) => (
+                <Badge variant="outline">
+                    {tejedor.tipo_voluntario}
+                </Badge>
+            ),
+        },
+        {
             key: 'telefono_tejedor',
             label: 'Teléfono',
         },
         {
-            key: 'correo_tejedor',
-            label: 'Correo',
-        },
-        {
             key: 'rol',
-            label: 'Rol',
+            label: 'Rol Sistema',
             render: (tejedor) => (
                 <Badge
                     variant={
@@ -136,16 +158,7 @@ export default function TejedoresPage() {
                                 : 'outline'
                     }
                 >
-                    {tejedor.rol}
-                </Badge>
-            ),
-        },
-        {
-            key: 'activo',
-            label: 'Estado',
-            render: (tejedor) => (
-                <Badge variant={tejedor.activo ? 'default' : 'destructive'}>
-                    {tejedor.activo ? 'Activo' : 'Inactivo'}
+                    {tejedor.rol || 'Sin Rol'}
                 </Badge>
             ),
         },
@@ -179,14 +192,14 @@ export default function TejedoresPage() {
                 <div>
                     <h1 className="text-3xl text-gray-900 mb-2">Tejedores</h1>
                     <p className="text-gray-600">
-                        Gestión de personal del sistema (usuarios operadores)
+                        Gestión de personal y voluntarios del sistema
                     </p>
                 </div>
 
                 <DataTable
                     data={tejedores}
                     columns={columns}
-                    searchPlaceholder="Buscar por cédula, nombre o correo..."
+                    searchPlaceholder="Buscar por cédula, nombre o profesión..."
                     onAdd={handleAdd}
                     addLabel="Agregar Tejedor"
                     onExport={(format) => toast.info(`Exportando ${format.toUpperCase()}...`)}
@@ -194,7 +207,7 @@ export default function TejedoresPage() {
 
                 {/* Modal Formulario */}
                 <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
                             <DialogTitle>
                                 {editingTejedor ? 'Editar Tejedor' : 'Nuevo Tejedor'}
@@ -202,7 +215,7 @@ export default function TejedoresPage() {
                         </DialogHeader>
 
                         <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="cedula">Cédula *</Label>
                                     <Input
@@ -214,18 +227,6 @@ export default function TejedoresPage() {
                                         required
                                         disabled={!!editingTejedor}
                                         maxLength={12}
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="usuario">Usuario *</Label>
-                                    <Input
-                                        id="usuario"
-                                        value={formData.usuario}
-                                        onChange={(e) =>
-                                            setFormData({ ...formData, usuario: e.target.value })
-                                        }
-                                        required
                                     />
                                 </div>
 
@@ -254,18 +255,69 @@ export default function TejedoresPage() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="telefono">Teléfono</Label>
+                                    <Label htmlFor="fecha_nacimiento">Fecha de Nacimiento *</Label>
+                                    <Input
+                                        id="fecha_nacimiento"
+                                        type="date"
+                                        value={formData.fecha_nacimiento}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, fecha_nacimiento: e.target.value })
+                                        }
+                                        required
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="profesion">Profesión *</Label>
+                                    <Input
+                                        id="profesion"
+                                        value={formData.profesion_tejedor}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, profesion_tejedor: e.target.value })
+                                        }
+                                        required
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="tipo_voluntario">Tipo Voluntario *</Label>
+                                    <Input
+                                        id="tipo_voluntario"
+                                        value={formData.tipo_voluntario}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, tipo_voluntario: e.target.value })
+                                        }
+                                        required
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="fecha_ingreso">Fecha de Ingreso *</Label>
+                                    <Input
+                                        id="fecha_ingreso"
+                                        type="date"
+                                        value={formData.fecha_ingreso}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, fecha_ingreso: e.target.value })
+                                        }
+                                        required
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="telefono">Teléfono *</Label>
                                     <Input
                                         id="telefono"
                                         value={formData.telefono_tejedor}
                                         onChange={(e) =>
                                             setFormData({ ...formData, telefono_tejedor: e.target.value })
                                         }
+                                        required
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="correo">Correo Electrónico</Label>
+                                    <Label htmlFor="correo">Correo Electrónico *</Label>
                                     <Input
                                         id="correo"
                                         type="email"
@@ -273,11 +325,23 @@ export default function TejedoresPage() {
                                         onChange={(e) =>
                                             setFormData({ ...formData, correo_tejedor: e.target.value })
                                         }
+                                        required
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="rol">Rol *</Label>
+                                    <Label htmlFor="usuario">Usuario Sistema</Label>
+                                    <Input
+                                        id="usuario"
+                                        value={formData.usuario}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, usuario: e.target.value })
+                                        }
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="rol">Rol Sistema</Label>
                                     <Select
                                         value={formData.rol}
                                         onValueChange={(value: any) =>
@@ -315,19 +379,20 @@ export default function TejedoresPage() {
                                     </Select>
                                 </div>
 
-                                <div className="col-span-2 space-y-2">
-                                    <Label htmlFor="direccion">Dirección</Label>
+                                <div className="col-span-full space-y-2">
+                                    <Label htmlFor="direccion">Dirección *</Label>
                                     <Input
                                         id="direccion"
                                         value={formData.direccion_tejedor}
                                         onChange={(e) =>
                                             setFormData({ ...formData, direccion_tejedor: e.target.value })
                                         }
+                                        required
                                     />
                                 </div>
                             </div>
 
-                            <div className="flex gap-2 justify-end">
+                            <div className="flex gap-2 justify-end pt-4">
                                 <Button
                                     type="button"
                                     variant="outline"
