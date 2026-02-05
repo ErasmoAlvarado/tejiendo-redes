@@ -15,19 +15,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Download, FileText } from 'lucide-react';
-import { DataTable, type Column } from '@/components/shared/DataTable';
-import {
-    mockAbordajes,
-    mockComunidades,
-    mockPacientes,
-    mockConsultas,
-    mockMedicamentos,
-    mockMedicamentosPacientes,
-    mockEnfermedades,
-    mockConsultaEnfermedades,
-    getAbordajeConRelaciones,
-} from '@/lib/mock-data';
-import { calcularEdad } from '@/types/models';
+import { DataTable } from '@/components/shared/DataTable';
 import { toast } from 'sonner';
 
 export default function ReportesPage() {
@@ -35,99 +23,64 @@ export default function ReportesPage() {
     const [fechaFin, setFechaFin] = React.useState('2025-01-31');
     const [comunidadFiltro, setComunidadFiltro] = React.useState('todas');
 
+    // Datos vacíos - Preparados para conexión con base de datos
+    const comunidades: Array<{ codigo_comunidad: string; nombre_comunidad: string }> = [];
+
     // Reporte de Abordajes - Preparado para conexión con base de datos
-    const reporteAbordajes = mockAbordajes.map((abordaje) => {
-        const data = getAbordajeConRelaciones(abordaje.codigo_abordaje);
-        return {
-            codigo_abordaje: abordaje.codigo_abordaje,
-            fecha_abordaje: abordaje.fecha_abordaje,
-            descripcion: abordaje.descripcion,
-            comunidades: data?.comunidades?.length || 0,
-            pacientes_atendidos: data?.pacientes_unicos || 0,
-            hora_inicio: abordaje.hora_inicio,
-            hora_fin: abordaje.hora_fin,
-        };
-    });
+    const reporteAbordajes: Array<{
+        codigo_abordaje: string;
+        fecha_abordaje: string;
+        descripcion: string;
+        comunidades: number;
+        pacientes_atendidos: number;
+        hora_inicio: string;
+        hora_fin: string;
+    }> = [];
 
     // Reporte de Comunidades
-    const reporteComunidades = mockComunidades.map((comunidad) => {
-        const pacientesEnComunidad = mockPacientes.filter(
-            (p) => p.codigo_comunidad === comunidad.codigo_comunidad
-        );
-        const abordajesEnComunidad = mockAbordajes.filter((a) => {
-            const data = getAbordajeConRelaciones(a.codigo_abordaje);
-            return data?.comunidades?.some((c: any) => c.codigo_comunidad === comunidad.codigo_comunidad);
-        });
-        const consultasEnComunidad = mockConsultas.filter((c) =>
-            pacientesEnComunidad.some((p) => p.cedula_paciente === c.cedula_paciente)
-        );
+    const reporteComunidades: Array<{
+        codigo_comunidad: string;
+        nombre_comunidad: string;
+        estado: string;
+        municipio: string;
+        cantidad_habitantes: number;
+        pacientes_tratados: number;
+        abordajes_realizados: number;
+        total_consultas: number;
+    }> = [];
 
-        const pacientesTratados = new Set(consultasEnComunidad.map((c) => c.cedula_paciente)).size;
+    // Reporte de Pacientes - Expandido con información completa
+    const reportePacientes: Array<{
+        cedula_paciente: string;
+        codigo_comunidad: string;
+        nombre_comunidad: string;
+        nombre_paciente: string;
+        apellido_paciente: string;
+        fecha_nacimiento: string;
+        direccion_paciente: string;
+        telefono_paciente: string;
+        correo_paciente: string;
+    }> = [];
 
-        return {
-            ...comunidad,
-            pacientes_tratados: pacientesTratados,
-            abordajes_realizados: abordajesEnComunidad.length,
-            total_consultas: consultasEnComunidad.length,
-        };
-    });
+    // Reporte de Morbilidad - Mejorado con datos epidemiológicos completos
+    const dataMorbilidad: Array<{
+        codigo_enfermedad: string;
+        nombre_enfermedad: string;
+        tipo_patologia: string;
+        total_casos: number;
+        pacientes_afectados: number;
+        porcentaje: string;
+        ultima_consulta: string;
+    }> = [];
 
-    // Reporte de Pacientes
-    const reportePacientes = mockPacientes.map((paciente) => {
-        const consultasPaciente = mockConsultas.filter(
-            (c) => c.cedula_paciente === paciente.cedula_paciente
-        ).map(c => {
-            const abordaje = mockAbordajes.find(a => a.codigo_abordaje === c.codigo_abordaje);
-            return {
-                ...c,
-                fecha_consulta: abordaje?.fecha_abordaje || '',
-            };
-        });
-
-        const ultimaConsulta =
-            consultasPaciente.length > 0
-                ? consultasPaciente.sort(
-                    (a, b) =>
-                        new Date(b.fecha_consulta).getTime() - new Date(a.fecha_consulta).getTime()
-                )[0]
-                : null;
-
-        return {
-            ...paciente,
-            edad: calcularEdad(paciente.fecha_nacimiento),
-            total_consultas: consultasPaciente.length,
-            ultima_consulta: ultimaConsulta?.fecha_consulta,
-        };
-    });
-
-    // Reporte de Morbilidad
-    const reporteMorbilidad: Record<string, number> = {};
-    mockConsultas.forEach((consulta) => {
-        const relacionEnfermedad = mockConsultaEnfermedades.find(ce => ce.codigo_consulta === consulta.codigo_consulta);
-        const enfermedad = mockEnfermedades.find(e => e.codigo_enfermedad === relacionEnfermedad?.codigo_enfermedad);
-        const tipo = enfermedad?.tipo_patologia || 'Sin clasificar';
-        reporteMorbilidad[tipo] = (reporteMorbilidad[tipo] || 0) + 1;
-    });
-
-    const dataMorbilidad = Object.entries(reporteMorbilidad).map(([tipo, cantidad]) => ({
-        tipo_morbilidad: tipo,
-        cantidad,
-        porcentaje: ((cantidad / (mockConsultas.length || 1)) * 100).toFixed(1),
-    }));
-
-    // Reporte de Medicamentos
-    const reporteMedicamentos = mockMedicamentos.map((medicamento) => {
-        const entregas = mockMedicamentosPacientes.filter(
-            (m) => m.codigo_medicamento === medicamento.codigo_medicamento
-        );
-        const totalEntregado = entregas.reduce((sum, e) => sum + e.cantidad_entregada, 0);
-
-        return {
-            ...medicamento,
-            entregas_realizadas: entregas.length,
-            total_entregado: totalEntregado,
-        };
-    });
+    // Reporte de Medicamentos - Simplificado
+    const reporteMedicamentos: Array<{
+        codigo_medicamento: string;
+        nombre_medicamento: string;
+        presentacion: string;
+        existencia: number;
+        descripcion: string;
+    }> = [];
 
     const handleExport = (format: 'csv' | 'pdf', tabName: string) => {
         toast.success(`Exportando ${tabName} en formato ${format.toUpperCase()}...`);
@@ -174,7 +127,7 @@ export default function ReportesPage() {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="todas">Todas</SelectItem>
-                                        {mockComunidades.map((c) => (
+                                        {comunidades.map((c) => (
                                             <SelectItem key={c.codigo_comunidad} value={c.codigo_comunidad}>
                                                 {c.nombre_comunidad}
                                             </SelectItem>
@@ -318,23 +271,21 @@ export default function ReportesPage() {
                                     data={reportePacientes}
                                     columns={[
                                         { key: 'cedula_paciente', label: 'Cédula', sortable: true },
+                                        { key: 'nombre_comunidad', label: 'Comunidad', sortable: true },
+                                        { key: 'nombre_paciente', label: 'Nombre', sortable: true },
+                                        { key: 'apellido_paciente', label: 'Apellido', sortable: true },
                                         {
-                                            key: 'nombre_paciente',
-                                            label: 'Nombre',
-                                            render: (p: any) => `${p.nombre_paciente} ${p.apellido_paciente}`,
+                                            key: 'fecha_nacimiento',
+                                            label: 'Fecha de Nacimiento',
+                                            render: (p: any) =>
+                                                p.fecha_nacimiento
+                                                    ? new Date(p.fecha_nacimiento).toLocaleDateString('es-VE')
+                                                    : '-',
                                             sortable: true,
                                         },
-                                        { key: 'edad', label: 'Edad', sortable: true },
-                                        { key: 'sexo', label: 'Sexo' },
-                                        { key: 'total_consultas', label: 'Consultas', sortable: true },
-                                        {
-                                            key: 'ultima_consulta',
-                                            label: 'Última Consulta',
-                                            render: (p: any) =>
-                                                p.ultima_consulta
-                                                    ? new Date(p.ultima_consulta).toLocaleDateString('es-VE')
-                                                    : '-',
-                                        },
+                                        { key: 'direccion_paciente', label: 'Dirección' },
+                                        { key: 'telefono_paciente', label: 'Teléfono' },
+                                        { key: 'correo_paciente', label: 'Correo' },
                                     ]}
                                     searchPlaceholder="Buscar paciente..."
                                 />
@@ -370,12 +321,24 @@ export default function ReportesPage() {
                                 <DataTable
                                     data={dataMorbilidad}
                                     columns={[
-                                        { key: 'tipo_morbilidad', label: 'Tipo de Morbilidad', sortable: true },
-                                        { key: 'cantidad', label: 'Casos', sortable: true },
+                                        { key: 'codigo_enfermedad', label: 'Código Enfermedad', sortable: true },
+                                        { key: 'nombre_enfermedad', label: 'Nombre Enfermedad', sortable: true },
+                                        { key: 'tipo_patologia', label: 'Tipo Patología', sortable: true },
+                                        { key: 'total_casos', label: 'Total Casos', sortable: true },
+                                        { key: 'pacientes_afectados', label: 'Pacientes Afectados', sortable: true },
                                         {
                                             key: 'porcentaje',
-                                            label: 'Porcentaje',
+                                            label: 'Porcentaje del Total',
                                             render: (d: any) => `${d.porcentaje}%`,
+                                            sortable: true,
+                                        },
+                                        {
+                                            key: 'ultima_consulta',
+                                            label: 'Última Consulta',
+                                            render: (d: any) =>
+                                                d.ultima_consulta
+                                                    ? new Date(d.ultima_consulta).toLocaleDateString('es-VE')
+                                                    : '-',
                                             sortable: true,
                                         },
                                     ]}
@@ -414,18 +377,10 @@ export default function ReportesPage() {
                                     data={reporteMedicamentos}
                                     columns={[
                                         { key: 'codigo_medicamento', label: 'Código', sortable: true },
-                                        { key: 'nombre_medicamento', label: 'Nombre', sortable: true },
-                                        { key: 'existencia', label: 'Stock Actual', sortable: true },
-                                        {
-                                            key: 'total_entregado',
-                                            label: 'Total Entregado',
-                                            sortable: true,
-                                        },
-                                        {
-                                            key: 'entregas_realizadas',
-                                            label: 'Entregas',
-                                            sortable: true,
-                                        },
+                                        { key: 'nombre_medicamento', label: 'Nombre Medicamento', sortable: true },
+                                        { key: 'presentacion', label: 'Presentación', sortable: true },
+                                        { key: 'existencia', label: 'Existencia', sortable: true },
+                                        { key: 'descripcion', label: 'Descripción' },
                                     ]}
                                     searchPlaceholder="Buscar medicamento..."
                                 />

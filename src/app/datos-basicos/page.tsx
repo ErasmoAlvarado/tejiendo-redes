@@ -13,17 +13,6 @@ import {
     Heart,
     Pill,
 } from 'lucide-react';
-import {
-    mockTejedores,
-    mockMedicos,
-    mockEspecialidades,
-    mockResponsables,
-    mockComunidades,
-    mockOrganismos,
-    mockPacientes,
-    mockMedicamentos,
-} from '@/lib/mock-data';
-
 interface DataCard {
     title: string;
     count: number;
@@ -38,61 +27,62 @@ export default function DatosBasicosPage() {
     const dataCards: DataCard[] = [
         {
             title: 'Tejedores',
-            count: mockTejedores.length,
+            count: 0,
             icon: <Users className="w-8 h-8" />,
             path: '/datos-basicos/tejedores',
             color: 'bg-blue-500',
         },
         {
             title: 'Médicos',
-            count: mockMedicos ? mockMedicos.length : 0,
+            count: 0,
             icon: <Stethoscope className="w-8 h-8" />,
             path: '/datos-basicos/medicos',
             color: 'bg-green-500',
         },
         {
             title: 'Especialidades',
-            count: mockEspecialidades.length,
+            count: 0,
             icon: <GraduationCap className="w-8 h-8" />,
             path: '/datos-basicos/especialidades',
             color: 'bg-purple-500',
         },
         {
             title: 'Responsables',
-            count: mockResponsables.length,
+            count: 0,
             icon: <UserCheck className="w-8 h-8" />,
             path: '/datos-basicos/responsables',
             color: 'bg-yellow-500',
         },
         {
             title: 'Comunidades',
-            count: mockComunidades.length,
+            count: 0,
             icon: <MapPin className="w-8 h-8" />,
             path: '/datos-basicos/comunidades',
             color: 'bg-red-500',
         },
         {
             title: 'Organismos',
-            count: mockOrganismos.length,
+            count: 0,
             icon: <Building2 className="w-8 h-8" />,
             path: '/datos-basicos/organismos',
             color: 'bg-indigo-500',
         },
         {
             title: 'Pacientes',
-            count: mockPacientes.length,
+            count: 0,
             icon: <Heart className="w-8 h-8" />,
             path: '/datos-basicos/pacientes',
             color: 'bg-pink-500',
         },
         {
             title: 'Medicamentos',
-            count: mockMedicamentos.length,
+            count: 0,
             icon: <Pill className="w-8 h-8" />,
             path: '/datos-basicos/medicamentos',
             color: 'bg-teal-500',
         },
     ];
+
 
     return (
         <MainLayout>

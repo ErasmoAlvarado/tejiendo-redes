@@ -18,13 +18,6 @@ import {
     Pill,
     Activity,
 } from 'lucide-react';
-import {
-    getPacienteConRelaciones,
-    mockComunidades,
-    mockAntecedentes,
-    mockConsultas,
-    mockMedicamentosPacientes,
-} from '@/services/mockData';
 import { calcularEdad, getGrupoEtario } from '@/types/models';
 import { EmptyState } from '@/components/shared/UIComponents';
 
@@ -33,7 +26,8 @@ export default function PacienteDetallePage() {
     const params = useParams();
     const id = params?.id as string;
 
-    const pacienteData = getPacienteConRelaciones(id!);
+    // Placeholder: En el futuro, esto usará una server action real
+    const pacienteData: any = null;
 
     if (!pacienteData) {
         return (
@@ -51,20 +45,15 @@ export default function PacienteDetallePage() {
         );
     }
 
-    const edad = calcularEdad(pacienteData.fecha_nacimiento);
-    const grupoEtario = getGrupoEtario(edad);
-    const comunidad = mockComunidades.find(
-        (c) => c.codigo_comunidad === pacienteData.codigo_comunidad
-    );
-    const antecedente = mockAntecedentes.find(
-        (a) => a.cedula_paciente === pacienteData.cedula_paciente
-    );
-    const consultas = mockConsultas.filter(
-        (c) => c.cedula_paciente === pacienteData.cedula_paciente
-    );
-    const medicamentos = mockMedicamentosPacientes.filter(
-        (m) => m.cedula_paciente === pacienteData.cedula_paciente
-    );
+
+    const edad = 0;
+    const grupoEtario = '';
+    const comunidad: any = null;
+    const antecedente: any = null;
+    const consultas: any[] = [];
+    const medicamentos: any[] = [];
+
+
 
     return (
         <MainLayout>
@@ -304,7 +293,7 @@ export default function PacienteDetallePage() {
                                                         {new Date(entrega.fecha_entrega).toLocaleDateString('es-VE')}
                                                     </p>
                                                     <p className="text-sm text-gray-600 mt-2">Medicamento</p>
-                                                    <p className="text-base">{entrega.codigo_medicamento}</p>
+                                                    <p className="text-base">{entrega.codigoMedicamento}</p>
                                                     {entrega.indicaciones && (
                                                         <>
                                                             <p className="text-sm text-gray-600 mt-2">Indicaciones</p>

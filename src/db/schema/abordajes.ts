@@ -10,6 +10,7 @@ export const abordaje = mysqlTable('abordaje', {
     horaInicio: time('hora_inicio').notNull(),
     horaFin: time('hora_fin').notNull(),
     descripcion: text('descripcion').notNull(),
+    estado: varchar('estado', { length: 20 }).notNull().default('Planificado'),
 });
 
 export type Abordaje = typeof abordaje.$inferSelect;

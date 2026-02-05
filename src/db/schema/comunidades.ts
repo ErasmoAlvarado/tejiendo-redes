@@ -8,7 +8,7 @@ import { responsable } from './responsable';
 export const comunidades = mysqlTable('comunidades', {
     codigoComunidad: varchar('codigo_comunidad', { length: 10 }).primaryKey().notNull(), // COM-001...
     nombreComunidad: varchar('nombre_comunidad', { length: 150 }).notNull(),
-    tipoComunidad: varchar('tipo_comunidad', { length: 2 }).notNull(), // Ej. Urbana, Rural, Indígena, Base de Misiones
+    tipoComunidad: varchar('tipo_comunidad', { length: 2 }).notNull(), // '1': Urbana, '2': Rural, '3': Indígena, '4': Base de Misiones
     estado: varchar('estado', { length: 25 }).notNull(),
     municipio: varchar('municipio', { length: 50 }).notNull(),
     direccion: varchar('direccion', { length: 150 }).notNull(),

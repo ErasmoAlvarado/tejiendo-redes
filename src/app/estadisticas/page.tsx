@@ -27,107 +27,38 @@ import {
     LineChart,
     Line,
 } from 'recharts';
-import {
-    mockAbordajes,
-    mockComunidades,
-    mockPacientes,
-    mockConsultas,
-    mockMedicamentosPacientes,
-} from '@/lib/mock-data';
-import { calcularEdad, GRUPOS_ETARIOS } from '@/types/models';
 import { DataTable, type Column } from '@/components/shared/DataTable';
 
 export default function EstadisticasPage() {
+
     const [fechaInicio, setFechaInicio] = React.useState('2025-01-01');
     const [fechaFin, setFechaFin] = React.useState('2025-01-31');
     const [comunidadFiltro, setComunidadFiltro] = React.useState('todas');
     const [drilldownData, setDrilldownData] = React.useState<any[]>([]);
     const [drilldownTitle, setDrilldownTitle] = React.useState('');
 
-    // Abordajes por mes (últimos 6 meses)
-    const abordajesPorMes = [
-        { mes: 'Ago', cantidad: 4 },
-        { mes: 'Sep', cantidad: 5 },
-        { mes: 'Oct', cantidad: 8 },
-        { mes: 'Nov', cantidad: 6 },
-        { mes: 'Dic', cantidad: 9 },
-        { mes: 'Ene', cantidad: mockAbordajes.length },
-    ];
+    // Abordajes por mes (Placeholders)
+    const abordajesPorMes: any[] = [];
 
-    // Pacientes por comunidad (using mockComunidades)
-    const pacientesPorComunidad = mockComunidades.map((comunidad) => ({
-        name: comunidad.nombre_comunidad,
-        value: mockPacientes.filter((p) => p.codigo_comunidad === comunidad.codigo_comunidad)
-            .length,
-        codigo: comunidad.codigo_comunidad,
-    }));
+    // Pacientes por comunidad (Placeholders)
+    const pacientesPorComunidad: any[] = [];
 
-    // Consultas por sexo (si existe campo sexo)
-    const consultasPorSexo = [
-        {
-            name: 'Masculino',
-            value: mockConsultas.filter((c) => {
-                const paciente = mockPacientes.find((p) => p.cedula_paciente === c.cedula_paciente);
-                return paciente?.sexo === 'M';
-            }).length,
-            color: '#3b82f6',
-        },
-        {
-            name: 'Femenino',
-            value: mockConsultas.filter((c) => {
-                const paciente = mockPacientes.find((p) => p.cedula_paciente === c.cedula_paciente);
-                return paciente?.sexo === 'F';
-            }).length,
-            color: '#ec4899',
-        },
-    ];
+    // Consultas por sexo (Placeholders)
+    const consultasPorSexo: any[] = [];
 
-    // Pacientes por grupo etario
-    const pacientesPorGrupoEtario = GRUPOS_ETARIOS.map((grupo) => ({
-        name: grupo.label,
-        value: mockPacientes.filter((p) => {
-            const edad = calcularEdad(p.fecha_nacimiento);
-            return edad >= grupo.min && edad <= grupo.max;
-        }).length,
-    }));
+    // Pacientes por grupo etario (Placeholders)
+    const pacientesPorGrupoEtario: any[] = [];
 
-    // Top morbilidades
-    const morbilidades: Record<string, number> = {};
-    mockConsultas.forEach((c) => {
-        const tipo = c.tipo_morbilidad || 'Sin clasificar';
-        morbilidades[tipo] = (morbilidades[tipo] || 0) + 1;
-    });
+    // Top morbilidades (Placeholders)
+    const topMorbilidades: any[] = [];
 
-    const topMorbilidades = Object.entries(morbilidades)
-        .map(([tipo, cantidad]) => ({ tipo, cantidad }))
-        .sort((a, b) => b.cantidad - a.cantidad)
-        .slice(0, 6);
-
-    // Medicamentos más entregados
-    const medicamentosConteo: Record<string, number> = {};
-    mockMedicamentosPacientes.forEach((m) => {
-        medicamentosConteo[m.codigo_medicamento] =
-            (medicamentosConteo[m.codigo_medicamento] || 0) + m.cantidad_entregada;
-    });
-
-    const topMedicamentos = Object.entries(medicamentosConteo)
-        .map(([medicamento, cantidad]) => ({ medicamento, cantidad }))
-        .sort((a, b) => b.cantidad - a.cantidad)
-        .slice(0, 6);
+    // Medicamentos más entregados (Placeholders)
+    const topMedicamentos: any[] = [];
 
     const handleBarClick = (data: any, type: string) => {
-        if (type === 'comunidad') {
-            const pacientes = mockPacientes.filter(
-                (p) => p.codigo_comunidad === data.codigo
-            );
-            setDrilldownData(pacientes);
-            setDrilldownTitle(`Pacientes en ${data.name}`);
-        } else if (type === 'morbilidad') {
-            const consultas = mockConsultas.filter((c) => c.tipo_morbilidad === data.tipo);
-            setDrilldownData(consultas);
-            setDrilldownTitle(`Consultas de tipo ${data.tipo}`);
-        }
+        // Deshabilitado temporalmente
     };
+
 
     return (
         <MainLayout>
@@ -172,14 +103,11 @@ export default function EstadisticasPage() {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="todas">Todas</SelectItem>
-                                        {mockComunidades.map((c) => (
-                                            <SelectItem key={c.codigo_comunidad} value={c.codigo_comunidad}>
-                                                {c.nombre_comunidad}
-                                            </SelectItem>
-                                        ))}
+                                        {/* Comunidades desactivadas corporalmente */}
                                     </SelectContent>
                                 </Select>
                             </div>
+
                         </div>
                     </CardContent>
                 </Card>

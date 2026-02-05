@@ -138,7 +138,7 @@ async function seed() {
             {
                 codigoComunidad: 'COM-001',
                 nombreComunidad: 'La Esperanza',
-                tipoComunidad: 'UR',
+                tipoComunidad: '1',
                 estado: 'Miranda',
                 municipio: 'Sucre',
                 direccion: 'Sector La Esperanza, Petare',
@@ -151,7 +151,7 @@ async function seed() {
             {
                 codigoComunidad: 'COM-002',
                 nombreComunidad: 'El Progreso',
-                tipoComunidad: 'RU',
+                tipoComunidad: '2',
                 estado: 'Aragua',
                 municipio: 'Girardot',
                 direccion: 'Vía Principal El Progreso',

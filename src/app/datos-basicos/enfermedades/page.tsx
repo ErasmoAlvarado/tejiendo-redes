@@ -4,8 +4,8 @@ import React from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { DataTable, type Column } from '@/components/shared/DataTable';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2 } from 'lucide-react';
-import { mockEnfermedades } from '@/lib/mock-data';
+import { Edit, Trash2, Activity } from 'lucide-react';
+
 import type { Enfermedad } from '@/types/models';
 import {
     Dialog,
@@ -19,7 +19,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 
 export default function EnfermedadesPage() {
-    const [enfermedades, setEnfermedades] = React.useState(mockEnfermedades);
+    const [enfermedades, setEnfermedades] = React.useState<Enfermedad[]>([]);
+
     const [isModalOpen, setIsModalOpen] = React.useState(false);
     const [editingEnfermedad, setEditingEnfermedad] = React.useState<Enfermedad | null>(null);
 
@@ -145,7 +146,8 @@ export default function EnfermedadesPage() {
                 <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                     <DialogContent className="max-w-md">
                         <DialogHeader>
-                            <DialogTitle>
+                            <DialogTitle className="text-2xl flex items-center gap-2">
+                                <Activity className="w-6 h-6 text-blue-600" />
                                 {editingEnfermedad ? 'Editar Enfermedad' : 'Nueva Enfermedad'}
                             </DialogTitle>
                         </DialogHeader>
@@ -160,6 +162,7 @@ export default function EnfermedadesPage() {
                                     onChange={(e) => setFormData({ ...formData, codigo_enfermedad: e.target.value })}
                                     required
                                     disabled={!!editingEnfermedad}
+                                    className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                                 />
                             </div>
 
@@ -170,6 +173,7 @@ export default function EnfermedadesPage() {
                                     value={formData.nombre_enfermedad}
                                     onChange={(e) => setFormData({ ...formData, nombre_enfermedad: e.target.value })}
                                     required
+                                    className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                                 />
                             </div>
 
@@ -181,6 +185,7 @@ export default function EnfermedadesPage() {
                                     value={formData.tipo_patologia}
                                     onChange={(e) => setFormData({ ...formData, tipo_patologia: e.target.value })}
                                     required
+                                    className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                                 />
                             </div>
 
@@ -190,6 +195,7 @@ export default function EnfermedadesPage() {
                                     id="descripcion"
                                     value={formData.descripcion}
                                     onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
+                                    className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                                 />
                             </div>
 
@@ -201,7 +207,12 @@ export default function EnfermedadesPage() {
                                 >
                                     Cancelar
                                 </Button>
-                                <Button type="submit">Guardar</Button>
+                                <Button
+                                    type="submit"
+                                    className="px-8 bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-100 transition-all active:scale-95"
+                                >
+                                    Guardar Enfermedad
+                                </Button>
                             </div>
                         </form>
                     </DialogContent>

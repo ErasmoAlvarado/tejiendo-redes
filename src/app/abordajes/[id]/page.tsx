@@ -8,15 +8,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, Calendar, Clock, MapPin, Users, FileText } from 'lucide-react';
-import { getAbordajeConRelaciones, mockConsultas, mockMedicamentosPacientes } from '@/lib/mock-data';
 import { EmptyState } from '@/components/shared/UIComponents';
+
 
 export default function AbordajeDetallePage() {
     const router = useRouter();
     const params = useParams();
     const id = params?.id as string;
 
-    const abordajeData = getAbordajeConRelaciones(id!);
+    // Placeholder: En el futuro esto usará una action real
+    const abordajeData: any = null;
 
     if (!abordajeData) {
         return (
@@ -34,9 +35,8 @@ export default function AbordajeDetallePage() {
         );
     }
 
-    const medicamentosEntregados = mockMedicamentosPacientes.filter(
-        (m) => new Date(m.fecha_entrega).toDateString() === new Date(abordajeData.fecha_abordaje).toDateString()
-    );
+    const medicamentosEntregados: any[] = [];
+
 
     return (
         <MainLayout>
@@ -48,7 +48,7 @@ export default function AbordajeDetallePage() {
                             <ArrowLeft className="w-5 h-5" />
                         </Button>
                         <div>
-                            <h1 className="text-3xl text-gray-900">{abordajeData.descripcion_abordaje}</h1>
+                            <h1 className="text-3xl text-gray-900">{abordajeData.descripcion}</h1>
                             <p className="text-gray-600">{abordajeData.codigo_abordaje}</p>
                         </div>
                     </div>
@@ -259,7 +259,7 @@ export default function AbordajeDetallePage() {
                                             <div className="flex items-start justify-between">
                                                 <div className="space-y-2">
                                                     <p className="text-sm text-gray-600">Medicamento</p>
-                                                    <p className="text-base">{entrega.codigo_medicamento}</p>
+                                                    <p className="text-base">{entrega.codigoMedicamento}</p>
                                                     <p className="text-sm text-gray-600 mt-2">Paciente</p>
                                                     <p className="text-base">C.I. {entrega.cedula_paciente}</p>
                                                     {entrega.indicaciones && (

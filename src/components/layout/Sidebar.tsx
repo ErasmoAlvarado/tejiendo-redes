@@ -43,7 +43,7 @@ const menuItems: MenuItem[] = [
     label: 'Datos Básicos',
     path: '/datos-basicos',
     icon: <Database className="w-5 h-5" />,
-    roles: ['ADMIN', 'REGISTRO'],
+    // roles: ['ADMIN', 'REGISTRO'],
     children: [
       { label: 'Tejedores', path: '/datos-basicos/tejedores', icon: <Users className="w-4 h-4" /> },
       { label: 'Médicos', path: '/datos-basicos/medicos', icon: <Stethoscope className="w-4 h-4" /> },
@@ -59,7 +59,7 @@ const menuItems: MenuItem[] = [
     label: 'Abordajes',
     path: '/abordajes',
     icon: <Activity className="w-5 h-5" />,
-    roles: ['ADMIN', 'REGISTRO', 'MEDICO'],
+    // roles: ['ADMIN', 'REGISTRO', 'MEDICO'],
   },
   {
     label: 'Reportes',
@@ -94,8 +94,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   };
 
   const shouldShowItem = (item: MenuItem) => {
-    if (!item.roles) return true;
-    return hasRole(item.roles);
+    return true;
   };
 
   return (

@@ -1,35 +1,37 @@
 // Tipos que mapean EXACTAMENTE las tablas MySQL del sistema
+export const TIPO_COMUNIDAD_MAP: Record<string, string> = {
+  '1': 'Urbana',
+  '2': 'Rural',
+  '3': 'Indígena',
+  '4': 'Base de Misiones',
+};
 
 export interface Responsable {
-  cedula_responsable: string;
-  nombre_responsable: string;
-  apellido_responsable: string;
-  direccion_responsable: string;
-  telefono_responsable: string;
-  correo_responsable: string;
+  cedulaResponsable: string;
+  nombreResponsable: string;
+  apellidoResponsable: string;
+  direccionResponsable: string;
+  telefonoResponsable: string;
+  correoResponsable: string;
   cargo: string;
 }
 
 export interface Tejedor {
-  cedula_tejedor: string;
-  nombre_tejedor: string;
-  apellido_tejedor: string;
-  fecha_nacimiento: string;
-  direccion_tejedor: string;
-  telefono_tejedor: string;
-  correo_tejedor: string;
-  profesion_tejedor: string;
-  fecha_ingreso: string;
-  tipo_voluntario: string;
-  // Campos extra para la app (autenticación/estado)
-  usuario?: string;
-  rol?: 'ADMIN' | 'REGISTRO' | 'MEDICO' | 'FARMACIA' | 'LECTOR';
-  activo?: boolean;
+  cedulaTejedor: string;
+  nombreTejedor: string;
+  apellidoTejedor: string;
+  fechaNacimiento: string;
+  direccionTejedor: string;
+  telefonoTejedor: string;
+  correoTejedor: string;
+  profesionTejedor: string;
+  fechaIngreso: string;
+  tipoVoluntario: string;
 }
 
 export interface Especialidad {
-  codigo_especialidad: string;
-  nombre_especialidad: string;
+  codigoEspecialidad: string;
+  nombreEspecialidad: string;
   descripcion: string;
 }
 
@@ -41,32 +43,32 @@ export interface Enfermedad {
 }
 
 export interface Comunidad {
-  codigo_comunidad: string;
-  nombre_comunidad: string;
-  tipo_comunidad: string; // Ej. Urbana, Rural, Indígena, Base de Misiones
+  codigoComunidad: string;
+  nombreComunidad: string;
+  tipoComunidad: string; // Ej. Urbana, Rural, Indígena, Base de Misiones
   estado: string;
   municipio: string;
   direccion: string;
-  ubicacion_fisica: string;
-  cedula_responsable: string;
-  cantidad_habitantes: number;
-  cantidad_familias: number;
-  telefono_comunidad: string;
+  ubicacionFisica: string;
+  cedulaResponsable: string;
+  cantidadHabitantes: number;
+  cantidadFamilias: number;
+  telefonoComunidad: string;
   // Relaciones
   responsable?: Responsable;
 }
 
 export interface Organismo {
-  codigo_organismo: string;
-  cedula_tejedor: string;
-  nombre_organismo: string;
-  pais_organismo: string;
-  estado_organismo: string;
-  municipio_organismo: string;
-  direccion_organismo: string;
-  ubicacion_fisica: string;
-  correo_organismo: string;
-  telefono_organismo: string;
+  codigoOrganismo: string;
+  cedulaTejedor: string;
+  nombreOrganismo: string;
+  paisOrganismo: string;
+  estadoOrganismo: string;
+  municipioOrganismo: string;
+  direccionOrganismo: string;
+  ubicacionFisica: string;
+  correoOrganismo: string;
+  telefonoOrganismo: string;
   // Relaciones
   tejedor?: Tejedor;
 }
@@ -102,11 +104,11 @@ export interface Antecedente {
 }
 
 export interface Medicamento {
-  codigo_medicamento: string;
-  nombre_medicamento: string;
+  codigoMedicamento: string;
+  nombreMedicamento: string;
   presentacion: string;
   descripcion: string;
-  existence: number;
+  existencia: number;
 }
 
 export interface Abordaje {
@@ -115,8 +117,7 @@ export interface Abordaje {
   hora_inicio: string;
   hora_fin: string;
   descripcion: string;
-  // Campo extra para UI
-  estado?: 'Planificado' | 'En Curso' | 'Finalizado';
+  estado: 'Planificado' | 'En Curso' | 'Finalizado';
 }
 
 export interface AbordajeComunidad {
@@ -129,10 +130,10 @@ export interface AbordajeComunidad {
 }
 
 export interface Medico {
-  cedula_tejedor: string;
-  codigo_especialidad: string;
-  matricula_colegio_medico: string;
-  matricula_sanidad: string;
+  cedulaTejedor: string;
+  codigoEspecialidad: string;
+  matriculaColegioMedico: string;
+  matriculaSanidad: string;
   // Relaciones
   tejedor?: Tejedor;
   especialidad?: Especialidad;
@@ -163,11 +164,12 @@ export interface ConsultaEnfermedad {
 }
 
 export interface MedicamentoPaciente {
-  codigo_medicamento: string;
+  codigoMedicamento: string;
   cedula_paciente: string;
   fecha_entrega: string;
   cantidad_entregada: number;
   cedula_tejedor: string;
+  indicaciones?: string;
   // Relaciones
   medicamento?: Medicamento;
   paciente?: Paciente;

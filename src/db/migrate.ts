@@ -1,6 +1,10 @@
+import { loadEnvConfig } from '@next/env';
 import { drizzle } from 'drizzle-orm/mysql2';
 import { migrate } from 'drizzle-orm/mysql2/migrator';
-import { connection } from './client';
+
+// Load environment variables configuration
+const projectDir = process.cwd();
+loadEnvConfig(projectDir);
 
 /**
  * Script to run database migrations
@@ -10,6 +14,9 @@ async function runMigrations() {
     console.log('⏳ Running database migrations...');
 
     try {
+        // Dynamically import client to ensure env vars are loaded before the module is evaluated
+        const { connection } = await import('./client');
+
         const db = drizzle(connection);
         await migrate(db, { migrationsFolder: './drizzle' });
 
