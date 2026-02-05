@@ -12,6 +12,7 @@ import {
     Building2,
     Heart,
     Pill,
+    Activity,
 } from 'lucide-react';
 interface DataCard {
     title: string;
@@ -75,11 +76,25 @@ export default function DatosBasicosPage() {
             color: 'bg-pink-500',
         },
         {
+            title: 'Enfermedades',
+            count: 0,
+            icon: <Activity className="w-8 h-8" />,
+            path: '/datos-basicos/enfermedades',
+            color: 'bg-orange-500',
+        },
+        {
             title: 'Medicamentos',
             count: 0,
             icon: <Pill className="w-8 h-8" />,
             path: '/datos-basicos/medicamentos',
             color: 'bg-teal-500',
+        },
+        {
+            title: 'Consultas',
+            count: 0,
+            icon: <Stethoscope className="w-8 h-8" />,
+            path: '/datos-basicos/consultas',
+            color: 'bg-cyan-600',
         },
     ];
 
