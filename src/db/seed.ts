@@ -1,4 +1,8 @@
-import { db, schema } from './index';
+import { loadEnvConfig } from '@next/env';
+
+// Load environment variables configuration
+const projectDir = process.cwd();
+loadEnvConfig(projectDir);
 
 /**
  * Script de seed para poblar la base de datos con datos iniciales
@@ -8,6 +12,8 @@ async function seed() {
     console.log('🌱 Iniciando seed de la base de datos...');
 
     try {
+        const { db, schema } = await import('./index');
+
         // 1. Seed Responsables
         console.log('📝 Insertando responsables...');
         await db.insert(schema.responsable).values([
