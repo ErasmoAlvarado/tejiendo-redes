@@ -54,7 +54,6 @@ const menuItems: MenuItem[] = [
       { label: 'Pacientes', path: '/datos-basicos/pacientes', icon: <Heart className="w-4 h-4" /> },
       { label: 'Enfermedades', path: '/datos-basicos/enfermedades', icon: <Activity className="w-4 h-4" /> },
       { label: 'Medicamentos', path: '/datos-basicos/medicamentos', icon: <Pill className="w-4 h-4" /> },
-      { label: 'Consultas', path: '/datos-basicos/consultas', icon: <Stethoscope className="w-4 h-4" /> },
     ],
   },
   {

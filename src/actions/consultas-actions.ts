@@ -30,10 +30,10 @@ export async function getConsultas() {
         // En un caso real masiva, esto deberia tener paginacion y filtros
         const data = await db.select({
             consulta: consultas,
-            nombrePaciente: sql<string>`concat(${pacientes.nombre}, ' ', ${pacientes.apellido})`,
-            nombreMedico: sql<string>`concat(${tejedores.nombre1}, ' ', ${tejedores.apellido1})`,
+            nombrePaciente: sql<string>`concat(${pacientes.nombrePaciente}, ' ', ${pacientes.apellidoPaciente})`,
+            nombreMedico: sql<string>`concat(${tejedores.nombreTejedor}, ' ', ${tejedores.apellidoTejedor})`,
             codigoAbordaje: abordaje.codigoAbordaje,
-            fechaAbordaje: abordaje.fecha,
+            fechaAbordaje: abordaje.fechaAbordaje,
         })
             .from(consultas)
             .leftJoin(pacientes, eq(consultas.cedulaPaciente, pacientes.cedulaPaciente))

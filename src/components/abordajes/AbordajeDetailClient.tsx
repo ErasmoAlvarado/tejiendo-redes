@@ -1,21 +1,31 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Calendar, Clock, MapPin, Users, FileText } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, MapPin, Users, FileText, Plus, Pill } from 'lucide-react';
 import { EmptyState } from '@/components/shared/UIComponents';
+import {
+    EditAbordajeModal,
+    AddComunidadModal,
+    AddTejedorModal,
+    RegisterMedicamentoModal
+} from './AbordajeModals';
 
 interface AbordajeDetailClientProps {
-    abordajeData: any; // We can improve typing later
+    abordajeData: any;
 }
 
 export function AbordajeDetailClient({ abordajeData }: AbordajeDetailClientProps) {
     const router = useRouter();
+    const [showEdit, setShowEdit] = useState(false);
+    const [showAddComunidad, setShowAddComunidad] = useState(false);
+    const [showAddTejedor, setShowAddTejedor] = useState(false);
+    const [showRegisterMeds, setShowRegisterMeds] = useState(false);
 
     if (!abordajeData) {
         return (
@@ -34,7 +44,6 @@ export function AbordajeDetailClient({ abordajeData }: AbordajeDetailClientProps
     }
 
     const { id } = abordajeData;
-    // Note: abordajeData includes metada: consultas, medicamentos_entregados, communities, tejedores
     const medicamentosEntregados = abordajeData.medicamentos_entregados || [];
 
     return (
@@ -48,22 +57,21 @@ export function AbordajeDetailClient({ abordajeData }: AbordajeDetailClientProps
                         </Button>
                         <div>
                             <h1 className="text-3xl text-gray-900">{abordajeData.descripcion}</h1>
-                            <p className="text-gray-600">{abordajeData.codigoAbordaje}</p>
+                            <div className="flex items-center gap-2 text-gray-600">
+                                <span className="font-mono bg-gray-100 px-2 py-0.5 rounded text-sm">{abordajeData.codigoAbordaje}</span>
+                                <span>•</span>
+                                <span className={
+                                    abordajeData.estado === 'Finalizado' ? 'text-green-600 font-medium' :
+                                        abordajeData.estado === 'En Curso' ? 'text-blue-600 font-medium' :
+                                            'text-gray-500'
+                                }>
+                                    {abordajeData.estado}
+                                </span>
+                            </div>
                         </div>
                     </div>
                     <div className="flex gap-2">
-                        <Badge
-                            variant={
-                                abordajeData.estado === 'Finalizado'
-                                    ? 'default'
-                                    : abordajeData.estado === 'En Curso'
-                                        ? 'secondary'
-                                        : 'outline'
-                            }
-                        >
-                            {abordajeData.estado}
-                        </Badge>
-                        <Button onClick={() => router.push(`/abordajes/${abordajeData.codigoAbordaje}/editar`)}>
+                        <Button variant="outline" onClick={() => setShowEdit(true)}>
                             Editar Abordaje
                         </Button>
                     </div>
@@ -143,6 +151,11 @@ export function AbordajeDetailClient({ abordajeData }: AbordajeDetailClientProps
                     </TabsList>
 
                     <TabsContent value="comunidades">
+                        <div className="flex justify-end mb-4">
+                            <Button onClick={() => setShowAddComunidad(true)} size="sm" className="gap-2">
+                                <Plus className="w-4 h-4" /> Agregar Comunidad
+                            </Button>
+                        </div>
                         {abordajeData.comunidades && abordajeData.comunidades.length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {abordajeData.comunidades.map((comunidad: any) => (
@@ -175,17 +188,23 @@ export function AbordajeDetailClient({ abordajeData }: AbordajeDetailClientProps
                     </TabsContent>
 
                     <TabsContent value="tejedores">
+                        <div className="flex justify-end mb-4">
+                            <Button onClick={() => setShowAddTejedor(true)} size="sm" className="gap-2">
+                                <Plus className="w-4 h-4" /> Agregar Tejedor
+                            </Button>
+                        </div>
                         {abordajeData.tejedores && abordajeData.tejedores.length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {abordajeData.tejedores.map((tejedor: any) => (
                                     <Card key={tejedor.cedulaTejedor}>
                                         <CardContent className="pt-6">
                                             <div className="space-y-2">
-                                                <p className="text-base">
+                                                <p className="text-base font-medium">
                                                     {tejedor.nombreTejedor} {tejedor.apellidoTejedor}
                                                 </p>
                                                 <Badge variant="secondary">{tejedor.rolAbordaje || 'Participante'}</Badge>
                                                 <p className="text-sm text-gray-600">C.I. {tejedor.cedulaTejedor}</p>
+                                                <p className="text-xs text-gray-500">{tejedor.profesionTejedor}</p>
                                             </div>
                                         </CardContent>
                                     </Card>
@@ -201,6 +220,11 @@ export function AbordajeDetailClient({ abordajeData }: AbordajeDetailClientProps
                     </TabsContent>
 
                     <TabsContent value="consultas">
+                        <div className="flex justify-end mb-4">
+                            <Button onClick={() => router.push(`/abordajes/${abordajeData.codigoAbordaje}/nueva-consulta`)} size="sm" className="gap-2">
+                                <Plus className="w-4 h-4" /> Nueva Consulta
+                            </Button>
+                        </div>
                         {abordajeData.consultas && abordajeData.consultas.length > 0 ? (
                             <div className="space-y-4">
                                 {abordajeData.consultas.map((consulta: any) => (
@@ -208,28 +232,22 @@ export function AbordajeDetailClient({ abordajeData }: AbordajeDetailClientProps
                                         <CardHeader>
                                             <div className="flex items-center justify-between">
                                                 <CardTitle className="text-lg">{consulta.codigoConsulta}</CardTitle>
-                                                {/* Add morbilidad if available in join */}
+                                                <Badge variant="outline">{new Date(consulta.fechaConsulta).toLocaleDateString()}</Badge>
                                             </div>
                                         </CardHeader>
                                         <CardContent className="space-y-3">
                                             <div>
-                                                <p className="text-sm text-gray-600">Paciente</p>
+                                                <p className="text-sm text-gray-600 font-medium">Paciente</p>
                                                 <p className="text-base">C.I. {consulta.cedulaPaciente}</p>
                                             </div>
                                             <div>
-                                                <p className="text-sm text-gray-600">Motivo</p>
+                                                <p className="text-sm text-gray-600 font-medium">Motivo</p>
                                                 <p className="text-base">{consulta.motivoConsulta}</p>
                                             </div>
                                             <div>
-                                                <p className="text-sm text-gray-600">Diagnóstico</p>
+                                                <p className="text-sm text-gray-600 font-medium">Diagnóstico</p>
                                                 <p className="text-base">{consulta.diagnosticoTexto}</p>
                                             </div>
-                                            {consulta.tratamiento && (
-                                                <div>
-                                                    <p className="text-sm text-gray-600">Tratamiento</p>
-                                                    <p className="text-base">{consulta.tratamiento}</p>
-                                                </div>
-                                            )}
                                         </CardContent>
                                     </Card>
                                 ))}
@@ -239,15 +257,16 @@ export function AbordajeDetailClient({ abordajeData }: AbordajeDetailClientProps
                                 icon="info"
                                 title="Sin consultas registradas"
                                 description="Este abordaje no tiene consultas médicas registradas"
-                                action={{
-                                    label: 'Registrar Consulta',
-                                    onClick: () => router.push(`/abordajes/${abordajeData.codigoAbordaje}/nueva-consulta`),
-                                }}
                             />
                         )}
                     </TabsContent>
 
                     <TabsContent value="medicamentos">
+                        <div className="flex justify-end mb-4">
+                            <Button onClick={() => setShowRegisterMeds(true)} size="sm" className="gap-2">
+                                <Pill className="w-4 h-4" /> Registrar Entrega
+                            </Button>
+                        </div>
                         {medicamentosEntregados.length > 0 ? (
                             <div className="space-y-4">
                                 {medicamentosEntregados.map((entrega: any, index: number) => (
@@ -255,22 +274,32 @@ export function AbordajeDetailClient({ abordajeData }: AbordajeDetailClientProps
                                         <CardContent className="pt-6">
                                             <div className="flex items-start justify-between">
                                                 <div className="space-y-2">
-                                                    <p className="text-sm text-gray-600">Medicamento</p>
-                                                    <p className="text-base font-medium">{entrega.nombreMedicamento}</p>
-                                                    <p className="text-sm text-gray-400">{entrega.codigoMedicamento}</p>
+                                                    <div>
+                                                        <p className="text-lg font-medium text-gray-900">{entrega.nombreMedicamento}</p>
+                                                        <p className="text-sm text-gray-500">{entrega.codigoMedicamento}</p>
+                                                    </div>
 
-                                                    <p className="text-sm text-gray-600 mt-2">Paciente</p>
-                                                    <p className="text-base">C.I. {entrega.cedulaPaciente}</p>
+                                                    <div className="grid grid-cols-2 gap-x-8 gap-y-2 mt-2">
+                                                        <div>
+                                                            <p className="text-xs text-gray-500 uppercase tracking-wider">Paciente</p>
+                                                            <p className="text-sm font-medium">C.I. {entrega.cedulaPaciente}</p>
+                                                        </div>
+                                                        {entrega.cedulaTejedor && (
+                                                            <div>
+                                                                <p className="text-xs text-gray-500 uppercase tracking-wider">Entregado por</p>
+                                                                <p className="text-sm font-medium">C.I. {entrega.cedulaTejedor}</p>
+                                                            </div>
+                                                        )}
+                                                    </div>
 
                                                     {entrega.indicaciones && (
-                                                        <>
-                                                            <p className="text-sm text-gray-600 mt-2">Indicaciones</p>
-                                                            <p className="text-base">{entrega.indicaciones}</p>
-                                                        </>
+                                                        <div className="mt-2 bg-gray-50 p-2 rounded text-sm text-gray-700">
+                                                            <span className="font-semibold">Indicaciones:</span> {entrega.indicaciones}
+                                                        </div>
                                                     )}
                                                 </div>
-                                                <Badge variant="secondary">
-                                                    {entrega.cantidadEntregada} unidades
+                                                <Badge className="text-base px-3 py-1 bg-blue-100 text-blue-800 hover:bg-blue-100 border-none">
+                                                    {entrega.cantidadEntregada} {entrega.cantidadEntregada === 1 ? 'unidad' : 'unidades'}
                                                 </Badge>
                                             </div>
                                         </CardContent>
@@ -286,6 +315,34 @@ export function AbordajeDetailClient({ abordajeData }: AbordajeDetailClientProps
                         )}
                     </TabsContent>
                 </Tabs>
+
+                {/* Modals */}
+                <EditAbordajeModal
+                    open={showEdit}
+                    onOpenChange={setShowEdit}
+                    abordaje={abordajeData}
+                />
+
+                <AddComunidadModal
+                    open={showAddComunidad}
+                    onOpenChange={setShowAddComunidad}
+                    abordajeId={abordajeData.codigoAbordaje}
+                    existingIds={abordajeData.comunidades?.map((c: any) => c.codigoComunidad) || []}
+                />
+
+                <AddTejedorModal
+                    open={showAddTejedor}
+                    onOpenChange={setShowAddTejedor}
+                    abordajeId={abordajeData.codigoAbordaje}
+                    existingIds={abordajeData.tejedores?.map((t: any) => t.cedulaTejedor) || []}
+                />
+
+                <RegisterMedicamentoModal
+                    open={showRegisterMeds}
+                    onOpenChange={setShowRegisterMeds}
+                    abordajeId={abordajeData.codigoAbordaje}
+                    fechaAbordaje={abordajeData.fechaAbordaje}
+                />
             </div>
         </MainLayout>
     );

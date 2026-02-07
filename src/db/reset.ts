@@ -1,48 +1,53 @@
 import { loadEnvConfig } from '@next/env';
 import { sql } from 'drizzle-orm';
+import { getTableConfig } from 'drizzle-orm/mysql-core';
 
 // Load environment variables configuration
 const projectDir = process.cwd();
 loadEnvConfig(projectDir);
 
+/**
+ * Script to reset the database (empty all tables)
+ * Usage: tsx src/db/reset.ts
+ */
 async function reset() {
-    console.log('🗑️ Resetting database...');
+    console.log('🔄 Reseteando la base de datos (dejándola en cero)...');
+
     try {
-        const { db } = await import('./index');
+        const { db, schema } = await import('./index');
 
         // Disable foreign key checks
-        await db.execute(sql`SET FOREIGN_KEY_CHECKS = 0`);
+        await db.execute(sql`SET FOREIGN_KEY_CHECKS = 0;`);
 
-        // Get all tables
-        const result = await db.execute(sql`
-            SELECT table_name as tableName
-            FROM information_schema.tables
-            WHERE table_schema = DATABASE()
-        `);
-
-        // The result structure depends on the driver, but for mysql2 with drizzle it's usually [rows, fields]
-        // or just rows if using db.execute() which returns the driver's raw result.
-        // Let's assume it's standard mysql2 query result: [RowDataPacket[], FieldPacket[]]
-
-        const rows = result[0] as any[];
-
-        if (Array.isArray(rows)) {
-            for (const row of rows) {
-                const tableName = row.tableName || row.TABLE_NAME;
-                if (tableName) {
-                    console.log(`Dropping table: ${tableName}`);
-                    await db.execute(sql.raw(`DROP TABLE IF EXISTS \`${tableName}\``));
+        // Get all tables from the schema
+        const tableNames: string[] = [];
+        for (const [key, value] of Object.entries(schema)) {
+            try {
+                const config = getTableConfig(value as any);
+                if (config && config.name) {
+                    tableNames.push(config.name);
                 }
+            } catch (e) {
+                // Not a table, skip
             }
         }
 
-        // Re-enable foreign key checks
-        await db.execute(sql`SET FOREIGN_KEY_CHECKS = 1`);
+        // Deduplicate table names (in case multiple exports refer to the same table)
+        const uniqueTableNames = [...new Set(tableNames)];
+        console.log(`Found ${uniqueTableNames.length} tables to truncate.`);
 
-        console.log('✅ Database reset complete!');
+        for (const tableName of uniqueTableNames) {
+            console.log(`  - Limpiando tabla: ${tableName}...`);
+            await db.execute(sql`TRUNCATE TABLE ${sql.identifier(tableName)};`);
+        }
+
+        // Re-enable foreign key checks
+        await db.execute(sql`SET FOREIGN_KEY_CHECKS = 1;`);
+
+        console.log('✅ Base de datos reseteada exitosamente!');
         process.exit(0);
     } catch (error) {
-        console.error('❌ Error resetting database:', error);
+        console.error('❌ Error durante el reset:', error);
         process.exit(1);
     }
 }

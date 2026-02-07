@@ -1,3 +1,5 @@
+'use client';
+
 // Context de autenticación
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { Tejedor } from '@/types/models';

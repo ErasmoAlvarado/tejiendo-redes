@@ -117,4 +117,133 @@ export async function createAbordaje(data: typeof abordaje.$inferInsert) {
     }
 }
 
+/**
+ * Actualizar un abordaje existente
+ */
+export async function updateAbordaje(id: string, data: Partial<typeof abordaje.$inferInsert>) {
+    try {
+        await db.update(abordaje)
+            .set(data)
+            .where(eq(abordaje.codigoAbordaje, id));
+        revalidatePath('/abordajes');
+        revalidatePath(`/abordajes/${id}`);
+        return { success: true };
+    } catch (error) {
+        console.error('Error updating abordaje:', error);
+        return { success: false, error: 'Error al actualizar el abordaje' };
+    }
+}
+
+/**
+ * Agregar comunidad a un abordaje
+ */
+export async function addComunidadToAbordaje(codigoAbordaje: string, codigoComunidad: string) {
+    try {
+        // Verificar si ya existe
+        const existing = await db.select()
+            .from(abordajeComunidad)
+            .where(and(
+                eq(abordajeComunidad.codigoAbordaje, codigoAbordaje),
+                eq(abordajeComunidad.codigoComunidad, codigoComunidad)
+            ));
+
+        if (existing.length > 0) {
+            return { success: false, error: 'La comunidad ya está asignada a este abordaje' };
+        }
+
+        await db.insert(abordajeComunidad).values({
+            codigoAbordaje,
+            codigoComunidad,
+        });
+
+        revalidatePath(`/abordajes/${codigoAbordaje}`);
+        return { success: true };
+    } catch (error) {
+        console.error('Error adding comunidad to abordaje:', error);
+        return { success: false, error: 'Error al agregar la comunidad' };
+    }
+}
+
+/**
+ * Remover comunidad de un abordaje
+ */
+export async function removeComunidadFromAbordaje(codigoAbordaje: string, codigoComunidad: string) {
+    try {
+        await db.delete(abordajeComunidad)
+            .where(and(
+                eq(abordajeComunidad.codigoAbordaje, codigoAbordaje),
+                eq(abordajeComunidad.codigoComunidad, codigoComunidad)
+            ));
+
+        revalidatePath(`/abordajes/${codigoAbordaje}`);
+        return { success: true };
+    } catch (error) {
+        console.error('Error removing comunidad from abordaje:', error);
+        return { success: false, error: 'Error al remover la comunidad' };
+    }
+}
+
+/**
+ * Agregar tejedor a un abordaje
+ */
+export async function addTejedorToAbordaje(codigoAbordaje: string, cedulaTejedor: string, rol: string) {
+    try {
+        // Verificar si ya existe
+        const existing = await db.select()
+            .from(tejedoresAbordaje)
+            .where(and(
+                eq(tejedoresAbordaje.codigoAbordaje, codigoAbordaje),
+                eq(tejedoresAbordaje.cedulaTejedor, cedulaTejedor)
+            ));
+
+        if (existing.length > 0) {
+            return { success: false, error: 'El tejedor ya está asignado a este abordaje' };
+        }
+
+        await db.insert(tejedoresAbordaje).values({
+            codigoAbordaje,
+            cedulaTejedor,
+            rolEnAbordaje: rol,
+        });
+
+        revalidatePath(`/abordajes/${codigoAbordaje}`);
+        return { success: true };
+    } catch (error) {
+        console.error('Error adding tejedor to abordaje:', error);
+        return { success: false, error: 'Error al agregar el tejedor' };
+    }
+}
+
+/**
+ * Remover tejedor de un abordaje
+ */
+export async function removeTejedorFromAbordaje(codigoAbordaje: string, cedulaTejedor: string) {
+    try {
+        await db.delete(tejedoresAbordaje)
+            .where(and(
+                eq(tejedoresAbordaje.codigoAbordaje, codigoAbordaje),
+                eq(tejedoresAbordaje.cedulaTejedor, cedulaTejedor)
+            ));
+
+        revalidatePath(`/abordajes/${codigoAbordaje}`);
+        return { success: true };
+    } catch (error) {
+        console.error('Error removing tejedor from abordaje:', error);
+        return { success: false, error: 'Error al remover el tejedor' };
+    }
+}
+
+/**
+ * Registrar entrega de medicamento
+ */
+export async function registerMedicamentoEntrega(data: typeof medicamentosPacientes.$inferInsert) {
+    try {
+        await db.insert(medicamentosPacientes).values(data);
+        revalidatePath('/abordajes');
+        return { success: true };
+    } catch (error) {
+        console.error('Error registering medicamento entrega:', error);
+        return { success: false, error: 'Error al registrar la entrega de medicamento' };
+    }
+}
 
